@@ -1,9 +1,7 @@
 package com.example.exoplayerpractice.player
 
 import com.example.exoplayerpractice.data.Track
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player.REPEAT_MODE_OFF
-import com.google.android.exoplayer2.Player.RepeatMode
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,33 +16,45 @@ class ExoMusicPlayer @Inject constructor(
     private val _playlist = MutableStateFlow<Playlist>(emptyList())
     override val playlist: StateFlow<Playlist> get() = _playlist
 
-    @RepeatMode
-    override var repeatMode: Int = REPEAT_MODE_OFF
-        set(value) {
-            field = value
-            player.repeatMode = value
-        }
+    private val _playbackState = MutableStateFlow(PlaybackState.Pause)
+    override val playbackState: StateFlow<PlaybackState> get() = _playbackState
 
-    override var shuffleModeEnabled: Boolean = false
-        set(value) {
-            field = value
-            player.shuffleModeEnabled = value
-        }
+    private val _repeatMode = MutableStateFlow(Player.REPEAT_MODE_OFF)
+    override val repeatMode: StateFlow<Int> get() = _repeatMode
 
-    override fun play() {
-        player.play()
+    private val _shuffleModeEnabled = MutableStateFlow(false)
+    override val shuffleModeEnabled: StateFlow<Boolean> get() = _shuffleModeEnabled
+
+    override fun play(track: Track, playlist: Playlist) {
+        // TODO: 2021/7/31
     }
 
     override fun pause() {
         player.pause()
     }
 
-    override fun addTrack(track: Track) {
-        player.addMediaItem(MediaItem.fromUri(track.url))
+    override fun previous() {
+        player.previous()
     }
 
-    override fun removeTrack(track: Track) {
+    override fun next() {
+        player.next()
+    }
 
+    override fun toggleRepeatMode() {
+        val repeatMode = when (_repeatMode.value) {
+            Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
+            Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
+            else -> Player.REPEAT_MODE_OFF
+        }
+        _repeatMode.value = repeatMode
+        player.repeatMode = repeatMode
+    }
+
+    override fun toggleShuffleMode() {
+        val shuffleMode = !_shuffleModeEnabled.value
+        _shuffleModeEnabled.value = shuffleMode
+        player.shuffleModeEnabled = shuffleMode
     }
 
     override fun clear() {

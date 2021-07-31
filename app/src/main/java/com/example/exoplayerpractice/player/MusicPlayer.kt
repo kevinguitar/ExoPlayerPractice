@@ -1,25 +1,34 @@
 package com.example.exoplayerpractice.player
 
 import com.example.exoplayerpractice.data.Track
-import com.google.android.exoplayer2.Player.RepeatMode
 import kotlinx.coroutines.flow.StateFlow
 
-interface MusicPlayer {
+interface MusicPlayer : MusicPlayerState, MusicPlayerControl
+
+interface MusicPlayerState {
 
     val playlist: StateFlow<Playlist>
 
-    @RepeatMode
-    var repeatMode: Int
+    val playbackState: StateFlow<PlaybackState>
 
-    var shuffleModeEnabled: Boolean
+    val repeatMode: StateFlow<Int>
 
-    fun play()
+    val shuffleModeEnabled: StateFlow<Boolean>
+}
+
+interface MusicPlayerControl {
+
+    fun play(track: Track, playlist: Playlist)
 
     fun pause()
 
-    fun addTrack(track: Track)
+    fun previous()
 
-    fun removeTrack(track: Track)
+    fun next()
+
+    fun toggleRepeatMode()
+
+    fun toggleShuffleMode()
 
     fun clear()
 }

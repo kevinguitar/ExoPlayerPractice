@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -29,13 +30,16 @@
             android:id="@+id/btn_shuffle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> model.musicPlayer.toggleShuffleMode()}"
             android:padding="8dp"
-            app:srcCompat="@drawable/exo_icon_shuffle_off" />
+            app:isActivated="@{model.musicPlayer.shuffleModeEnabled}"
+            app:srcCompat="@drawable/sl_shuffle" />
 
         <ImageView
             android:id="@+id/btn_previous"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> model.musicPlayer.previous()}"
             android:padding="8dp"
             app:srcCompat="@drawable/exo_icon_previous" />
 
@@ -43,13 +47,16 @@
             android:id="@+id/btn_play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> model.onPlayButtonClicked()}"
             android:padding="8dp"
-            app:srcCompat="@drawable/exo_icon_play" />
+            app:srcCompat="@{model.playRes}"
+            tools:src="@drawable/exo_icon_play" />
 
         <ImageView
             android:id="@+id/btn_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> model.musicPlayer.next()}"
             android:padding="8dp"
             app:srcCompat="@drawable/exo_icon_next" />
 
@@ -57,8 +64,10 @@
             android:id="@+id/btn_repeat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> model.musicPlayer.toggleRepeatMode()}"
             android:padding="8dp"
-            app:srcCompat="@drawable/exo_icon_repeat_off" />
+            app:srcCompat="@{model.repeatRes}"
+            tools:src="@drawable/exo_controls_repeat_off" />
 
         <SeekBar
             android:layout_width="0dp"

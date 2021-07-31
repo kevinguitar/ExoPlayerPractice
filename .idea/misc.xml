@@ -3,6 +3,17 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/drawable-anydpi-v21/exo_ic_check.xml" value="0.2833333333333333" />
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/drawable-anydpi-v21/exo_icon_fastforward.xml" value="0.2833333333333333" />
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/drawable-anydpi-v21/exo_icon_pause.xml" value="0.2833333333333333" />
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/drawable-anydpi-v21/exo_icon_play.xml" value="0.2833333333333333" />
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/drawable-anydpi-v21/exo_icon_repeat_off.xml" value="0.2833333333333333" />
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/drawable-anydpi-v21/exo_icon_stop.xml" value="0.2833333333333333" />
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/layout/exo_player_control_view.xml" value="0.3880208333333333" />
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/layout/exo_styled_player_view.xml" value="0.3880208333333333" />
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/layout/exo_styled_settings_list_item.xml" value="0.3880208333333333" />
+        <entry key="../../.gradle/caches/transforms-3/1c453c7bf2266cd6d1c64c2fcb987b1c/transformed/jetified-exoplayer-ui-2.14.2/res/layout/exo_styled_sub_settings_list_item.xml" value="0.3880208333333333" />
+        <entry key="app/src/main/res/drawable/sl_shuffle.xml" value="0.2833333333333333" />
         <entry key="app/src/main/res/layout/ac_music_player.xml" value="0.23703703703703705" />
         <entry key="app/src/main/res/layout/item_track.xml" value="0.25" />
         <entry key="app/src/main/res/layout/v_player.xml" value="0.25" />
