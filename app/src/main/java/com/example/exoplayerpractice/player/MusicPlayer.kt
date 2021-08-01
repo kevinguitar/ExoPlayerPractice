@@ -17,7 +17,7 @@ interface MusicPlayerState {
 
 interface MusicPlayerControl {
 
-    fun play(playlist: Playlist)
+    fun play(newPlaylist: Playlist)
 
     fun pause()
 

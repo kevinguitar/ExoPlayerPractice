@@ -1,5 +1,6 @@
 package com.example.exoplayerpractice.player
 
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +26,35 @@ class ExoMusicPlayer @Inject constructor(
     private val _shuffleModeEnabled = MutableStateFlow(false)
     override val shuffleModeEnabled: StateFlow<Boolean> = _shuffleModeEnabled.asStateFlow()
 
-    override fun play(playlist: Playlist) {
-        // TODO: 2021/7/31
+    init {
+        player.addListener(object : Player.Listener {
+
+            override fun onPlaybackStateChanged(state: Int) {
+                val newState = when (state) {
+                    Player.STATE_IDLE, Player.STATE_ENDED -> PlaybackState.Pause
+                    Player.STATE_BUFFERING -> PlaybackState.Loading
+                    else -> return
+                }
+                _playbackState.value = newState
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                _playbackState.value = if (isPlaying) {
+                    PlaybackState.Playing
+                } else {
+                    PlaybackState.Pause
+                }
+            }
+        })
+    }
+
+    override fun play(newPlaylist: Playlist) {
+        if (newPlaylist != playlist.value) {
+            player.addMediaItems(newPlaylist.map { MediaItem.fromUri(it.url) })
+            player.prepare()
+        }
+        player.playWhenReady = true
+        player.play()
     }
 
     override fun pause() {
