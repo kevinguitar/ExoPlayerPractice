@@ -18,8 +18,8 @@ class MusicPlayerActivity : AppCompatActivity() {
 
         DataBindingUtil.setContentView<AcMusicPlayerBinding>(this, R.layout.ac_music_player)
             .apply {
-                model = viewModel
                 lifecycleOwner = this@MusicPlayerActivity
+                model = viewModel
             }
     }
 }

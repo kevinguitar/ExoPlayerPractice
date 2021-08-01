@@ -1,10 +1,10 @@
 package com.example.exoplayerpractice.player
 
-import com.example.exoplayerpractice.data.Track
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,18 +14,18 @@ class ExoMusicPlayer @Inject constructor(
 ) : MusicPlayer {
 
     private val _playlist = MutableStateFlow<Playlist>(emptyList())
-    override val playlist: StateFlow<Playlist> get() = _playlist
+    override val playlist: StateFlow<Playlist> = _playlist.asStateFlow()
 
     private val _playbackState = MutableStateFlow(PlaybackState.Pause)
-    override val playbackState: StateFlow<PlaybackState> get() = _playbackState
+    override val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
 
     private val _repeatMode = MutableStateFlow(Player.REPEAT_MODE_OFF)
-    override val repeatMode: StateFlow<Int> get() = _repeatMode
+    override val repeatMode: StateFlow<Int> = _repeatMode.asStateFlow()
 
     private val _shuffleModeEnabled = MutableStateFlow(false)
-    override val shuffleModeEnabled: StateFlow<Boolean> get() = _shuffleModeEnabled
+    override val shuffleModeEnabled: StateFlow<Boolean> = _shuffleModeEnabled.asStateFlow()
 
-    override fun play(track: Track, playlist: Playlist) {
+    override fun play(playlist: Playlist) {
         // TODO: 2021/7/31
     }
 
