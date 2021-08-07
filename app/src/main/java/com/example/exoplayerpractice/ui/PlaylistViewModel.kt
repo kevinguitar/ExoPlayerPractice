@@ -2,7 +2,7 @@ package com.example.exoplayerpractice.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.exoplayerpractice.data.Track
+import com.example.exoplayerpractice.data.Playlist
 import com.example.exoplayerpractice.player.MusicPlayer
 import com.example.exoplayerpractice.player.PlaybackState
 import dagger.assisted.Assisted
@@ -12,21 +12,24 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class TrackViewModel @AssistedInject constructor(
-    @Assisted val playlistId: String,
-    @Assisted val track: Track,
-    musicPlayer: MusicPlayer
+class PlaylistViewModel @AssistedInject constructor(
+    @Assisted val playlist: Playlist,
+    private val musicPlayer: MusicPlayer
 ) : ViewModel() {
 
     val isPlaying = musicPlayer.playbackState
         .map { state ->
-            state is PlaybackState.Playing && state.trackId == track.id
+            state is PlaybackState.Playing && state.playlistId == playlist.id
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, false)
+
+    fun play() {
+        musicPlayer.prepareAndPlay(playlist)
+    }
 
     @AssistedFactory
     interface Factory {
 
-        fun create(playlistId: String, track: Track): TrackViewModel
+        fun create(playlist: Playlist): PlaylistViewModel
     }
 }

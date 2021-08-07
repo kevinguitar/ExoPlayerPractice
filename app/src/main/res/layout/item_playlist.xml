@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.example.exoplayerpractice.ui.PlaylistViewModel" />
+    </data>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:background="?selectableItemBackground"
+        android:gravity="center_vertical"
+        android:onClick="@{() -> model.play()}"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@{model.playlist.id}"
+        android:textColor="@color/sl_playlist_title"
+        android:textSize="16sp"
+        app:isActivated="@{model.isPlaying}"
+        tools:text="@tools:sample/full_names"
+        tools:textColor="@color/black">
+
+    </TextView>
+</layout>

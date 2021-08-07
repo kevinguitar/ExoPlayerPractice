@@ -1,5 +1,6 @@
 package com.example.exoplayerpractice.player
 
+import com.example.exoplayerpractice.data.Playlist
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -14,10 +15,12 @@ class ExoMusicPlayer @Inject constructor(
     private val player: SimpleExoPlayer
 ) : MusicPlayer {
 
-    private val _playlist = MutableStateFlow<Playlist>(emptyList())
-    override val playlist: StateFlow<Playlist> = _playlist.asStateFlow()
+    private var currentPlaylistId: String? = null
 
-    private val _playbackState = MutableStateFlow(PlaybackState.Pause)
+    private val currentTrackId: String?
+        get() = player.currentMediaItem?.mediaId
+
+    private val _playbackState = MutableStateFlow<PlaybackState>(PlaybackState.Pause)
     override val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
 
     private val _repeatMode = MutableStateFlow(Player.REPEAT_MODE_OFF)
@@ -28,29 +31,34 @@ class ExoMusicPlayer @Inject constructor(
 
     init {
         player.addListener(object : Player.Listener {
-
-            override fun onPlaybackStateChanged(state: Int) {
-                val newState = when (state) {
-                    Player.STATE_IDLE, Player.STATE_ENDED -> PlaybackState.Pause
-                    Player.STATE_BUFFERING -> PlaybackState.Loading
-                    else -> return
-                }
-                _playbackState.value = newState
-            }
-
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _playbackState.value = if (isPlaying) {
-                    PlaybackState.Playing
-                } else {
-                    PlaybackState.Pause
-                }
+            override fun onEvents(player: Player, events: Player.Events) {
+                this@ExoMusicPlayer.onEvents(player, events)
             }
         })
     }
 
-    override fun play(newPlaylist: Playlist) {
-        if (newPlaylist != playlist.value) {
-            player.addMediaItems(newPlaylist.map { MediaItem.fromUri(it.url) })
+    private fun onEvents(player: Player, events: Player.Events) = when {
+        Player.EVENT_PLAYBACK_STATE_CHANGED in events ||
+                Player.EVENT_PLAY_WHEN_READY_CHANGED in events -> {
+            val newState = when {
+                player.isPlaying -> PlaybackState.Playing(currentPlaylistId!!, currentTrackId!!)
+                player.playbackState == Player.STATE_BUFFERING -> PlaybackState.Loading(currentTrackId!!)
+                else -> PlaybackState.Pause
+            }
+            _playbackState.value = newState
+        }
+        else -> Unit
+    }
+
+    override fun prepareAndPlay(playlist: Playlist) {
+        if (currentPlaylistId != playlist.id) {
+            currentPlaylistId = playlist.id
+            player.setMediaItems(playlist.tracks.map {
+                MediaItem.Builder()
+                    .setUri(it.url)
+                    .setMediaId(it.id)
+                    .build()
+            })
             player.prepare()
         }
         player.playWhenReady = true
@@ -59,6 +67,10 @@ class ExoMusicPlayer @Inject constructor(
 
     override fun pause() {
         player.pause()
+    }
+
+    override fun resume() {
+        player.play()
     }
 
     override fun previous() {
@@ -86,6 +98,7 @@ class ExoMusicPlayer @Inject constructor(
     }
 
     override fun clear() {
+        currentPlaylistId = null
         player.clearMediaItems()
     }
 

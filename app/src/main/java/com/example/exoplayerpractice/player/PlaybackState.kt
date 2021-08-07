@@ -1,5 +1,13 @@
 package com.example.exoplayerpractice.player
 
-enum class PlaybackState {
-    Pause, Playing, Loading
+sealed class PlaybackState {
+
+    object Pause : PlaybackState()
+
+    data class Playing(
+        val playlistId: String,
+        val trackId: String
+    ) : PlaybackState()
+
+    data class Loading(val trackId: String) : PlaybackState()
 }

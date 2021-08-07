@@ -3,7 +3,7 @@ package com.example.exoplayerpractice.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exoplayerpractice.R
-import com.example.exoplayerpractice.data.freeTracks
+import com.example.exoplayerpractice.data.playlists
 import com.example.exoplayerpractice.player.MusicPlayer
 import com.example.exoplayerpractice.player.PlaybackState
 import com.google.android.exoplayer2.Player
@@ -16,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MusicPlayerViewModel @Inject constructor(
     val musicPlayer: MusicPlayer,
-    val adapter: TracksAdapter,
+    val adapter: MusicPlayerAdapter,
+    private val playlistFactory: PlaylistViewModel.Factory,
     private val trackFactory: TrackViewModel.Factory
 ) : ViewModel() {
 
@@ -24,8 +25,8 @@ class MusicPlayerViewModel @Inject constructor(
         .map { state ->
             when (state) {
                 PlaybackState.Pause -> R.drawable.exo_icon_play
-                PlaybackState.Playing -> R.drawable.exo_icon_pause
-                PlaybackState.Loading -> R.drawable.exo_ic_forward
+                is PlaybackState.Playing -> R.drawable.exo_icon_pause
+                is PlaybackState.Loading -> R.drawable.exo_ic_forward
             }
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, R.drawable.exo_icon_play)
@@ -42,14 +43,22 @@ class MusicPlayerViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Lazily, R.drawable.exo_icon_repeat_off)
 
     init {
-        adapter.submitList(freeTracks.map(trackFactory::create))
+        adapter.submitList(
+            playlists.flatMap { playlist ->
+                val playlistModel = listOf(playlistFactory.create(playlist))
+                val tracksModel = playlist.tracks.map { track ->
+                    trackFactory.create(playlist.id, track)
+                }
+                playlistModel + tracksModel
+            }
+        )
     }
 
     fun onPlayButtonClicked() {
         when (musicPlayer.playbackState.value) {
-            PlaybackState.Pause -> musicPlayer.play(freeTracks)
-            PlaybackState.Playing -> musicPlayer.pause()
-            PlaybackState.Loading -> Unit
+            PlaybackState.Pause -> musicPlayer.resume()
+            is PlaybackState.Playing -> musicPlayer.pause()
+            is PlaybackState.Loading -> Unit
         }
     }
 

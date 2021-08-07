@@ -1,12 +1,11 @@
 package com.example.exoplayerpractice.player
 
+import com.example.exoplayerpractice.data.Playlist
 import kotlinx.coroutines.flow.StateFlow
 
 interface MusicPlayer : MusicPlayerState, MusicPlayerControl
 
 interface MusicPlayerState {
-
-    val playlist: StateFlow<Playlist>
 
     val playbackState: StateFlow<PlaybackState>
 
@@ -17,9 +16,11 @@ interface MusicPlayerState {
 
 interface MusicPlayerControl {
 
-    fun play(newPlaylist: Playlist)
+    fun prepareAndPlay(playlist: Playlist)
 
     fun pause()
+
+    fun resume()
 
     fun previous()
 
