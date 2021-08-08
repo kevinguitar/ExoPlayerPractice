@@ -9,6 +9,8 @@ interface MusicPlayerState {
 
     val playbackState: StateFlow<PlaybackState>
 
+    val playbackProgress: StateFlow<PlaybackProgress>
+
     val repeatMode: StateFlow<Int>
 
     val shuffleModeEnabled: StateFlow<Boolean>
@@ -25,6 +27,11 @@ interface MusicPlayerControl {
     fun previous()
 
     fun next()
+
+    /**
+     *  @param position Playback position in millisecond.
+     */
+    fun seekTo(position: Long)
 
     fun toggleRepeatMode()
 

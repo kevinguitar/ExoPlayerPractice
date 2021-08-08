@@ -19,7 +19,7 @@ class PlaylistViewModel @AssistedInject constructor(
 
     val isPlaying = musicPlayer.playbackState
         .map { state ->
-            state is PlaybackState.Playing && state.playlistId == playlist.id
+            state !is PlaybackState.Pause && state.playlistId == playlist.id
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, false)
 

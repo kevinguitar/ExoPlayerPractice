@@ -1,13 +1,23 @@
 package com.example.exoplayerpractice.player
 
-sealed class PlaybackState {
+sealed class PlaybackState(
+    open val playlistId: String?,
+    open val trackId: String?
+) {
 
-    object Pause : PlaybackState()
+    data class Pause(
+        override val playlistId: String? = null,
+        override val trackId: String? = null
+    ) : PlaybackState(playlistId, trackId)
 
     data class Playing(
-        val playlistId: String,
-        val trackId: String
-    ) : PlaybackState()
+        override val playlistId: String?,
+        override val trackId: String?
+    ) : PlaybackState(playlistId, trackId)
 
-    data class Loading(val trackId: String) : PlaybackState()
+    data class Loading(
+        override val playlistId: String?,
+        override val trackId: String?
+    ) : PlaybackState(playlistId, trackId)
+
 }

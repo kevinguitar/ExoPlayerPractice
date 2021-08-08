@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -50,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?selectableItemBackgroundBorderless"
-            android:onClick="@{() -> model.onPlayButtonClicked()}"
+            android:onClick="@{model::onPlayButtonClicked}"
             android:padding="8dp"
             app:srcCompat="@{model.playRes}"
             tools:src="@drawable/exo_icon_play" />
@@ -74,14 +75,42 @@
             app:srcCompat="@{model.repeatRes}"
             tools:src="@drawable/exo_controls_repeat_off" />
 
+        <TextView
+            android:id="@+id/tv_current"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:text="@{model.playbackTime}"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/action_flow"
+            tools:text="0:00" />
+
+        <TextView
+            android:id="@+id/tv_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:text="@{model.duration}"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/action_flow"
+            tools:text="3:52" />
+
         <SeekBar
+            android:id="@+id/seekbar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:max="@{model.maxProgress}"
+            bind:onSeekListener="@{model.onPlaybackSeekListener}"
+            android:progress="@{model.playbackProgress}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/action_flow" />
+            app:layout_constraintTop_toBottomOf="@id/tv_current" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

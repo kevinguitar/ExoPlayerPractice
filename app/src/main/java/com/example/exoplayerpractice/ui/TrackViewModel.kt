@@ -13,20 +13,19 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class TrackViewModel @AssistedInject constructor(
-    @Assisted val playlistId: String,
     @Assisted val track: Track,
     musicPlayer: MusicPlayer
 ) : ViewModel() {
 
     val isPlaying = musicPlayer.playbackState
         .map { state ->
-            state is PlaybackState.Playing && state.trackId == track.id
+            state !is PlaybackState.Pause && state.trackId == track.id
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
     @AssistedFactory
     interface Factory {
 
-        fun create(playlistId: String, track: Track): TrackViewModel
+        fun create(track: Track): TrackViewModel
     }
 }

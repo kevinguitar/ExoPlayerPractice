@@ -2,6 +2,7 @@ package com.example.exoplayerpractice.utils
 
 import android.view.View
 import android.widget.ImageView
+import android.widget.SeekBar
 import androidx.annotation.DrawableRes
 import androidx.databinding.BindingAdapter
 
@@ -18,4 +19,9 @@ fun ImageView.setImageRes(@DrawableRes drawableRes: Int) {
     } else {
         setImageResource(drawableRes)
     }
+}
+
+@BindingAdapter("onSeekListener")
+fun SeekBar.setOnSeekListener(listener: SeekBar.OnSeekBarChangeListener?) {
+    setOnSeekBarChangeListener(listener)
 }

@@ -4,6 +4,7 @@ import com.example.exoplayerpractice.data.Playlist
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,8 +21,11 @@ class ExoMusicPlayer @Inject constructor(
     private val currentTrackId: String?
         get() = player.currentMediaItem?.mediaId
 
-    private val _playbackState = MutableStateFlow<PlaybackState>(PlaybackState.Pause)
+    private val _playbackState = MutableStateFlow<PlaybackState>(PlaybackState.Pause())
     override val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
+
+    private val _playbackProgress = MutableStateFlow(PlaybackProgress(0, 0))
+    override val playbackProgress: StateFlow<PlaybackProgress> = _playbackProgress.asStateFlow()
 
     private val _repeatMode = MutableStateFlow(Player.REPEAT_MODE_OFF)
     override val repeatMode: StateFlow<Int> = _repeatMode.asStateFlow()
@@ -38,14 +42,18 @@ class ExoMusicPlayer @Inject constructor(
     }
 
     private fun onEvents(player: Player, events: Player.Events) = when {
-        Player.EVENT_PLAYBACK_STATE_CHANGED in events ||
-                Player.EVENT_PLAY_WHEN_READY_CHANGED in events -> {
+        Player.EVENT_PLAYBACK_STATE_CHANGED in events
+                || Player.EVENT_PLAY_WHEN_READY_CHANGED in events
+                || Player.EVENT_IS_LOADING_CHANGED in events -> {
+
             val newState = when {
-                player.isPlaying -> PlaybackState.Playing(currentPlaylistId!!, currentTrackId!!)
-                player.playbackState == Player.STATE_BUFFERING -> PlaybackState.Loading(currentTrackId!!)
-                else -> PlaybackState.Pause
+                player.isPlaying -> PlaybackState.Playing(currentPlaylistId, currentTrackId)
+                player.isLoading -> PlaybackState.Loading(currentPlaylistId, currentTrackId)
+                else -> PlaybackState.Pause(currentPlaylistId, currentTrackId)
             }
             _playbackState.value = newState
+
+            player.setupPlaybackProgressTimer()
         }
         else -> Unit
     }
@@ -81,6 +89,10 @@ class ExoMusicPlayer @Inject constructor(
         player.next()
     }
 
+    override fun seekTo(position: Long) {
+        player.seekTo(position)
+    }
+
     override fun toggleRepeatMode() {
         val repeatMode = when (_repeatMode.value) {
             Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
@@ -102,4 +114,17 @@ class ExoMusicPlayer @Inject constructor(
         player.clearMediaItems()
     }
 
+    private var durationTimerJob: Job? = null
+
+    private fun Player.setupPlaybackProgressTimer() {
+        durationTimerJob?.cancel()
+        durationTimerJob = GlobalScope.launch {
+            while (true) {
+                withContext(Dispatchers.Main) {
+                    _playbackProgress.value = PlaybackProgress(currentPosition, duration)
+                }
+                delay(100)
+            }
+        }
+    }
 }
