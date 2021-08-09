@@ -13,6 +13,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="40dp"
+        android:layout_marginTop="16dp"
         android:background="?selectableItemBackground"
         android:drawablePadding="8dp"
         android:gravity="center_vertical"
@@ -22,6 +23,7 @@
         android:text="@{model.playlist.id}"
         android:textColor="@color/sl_playlist_title"
         android:textSize="16sp"
+        android:textStyle="bold"
         app:drawableStartCompat="@drawable/exo_ic_audiotrack"
         app:drawableTint="@color/sl_playlist_title"
         app:isActivated="@{model.isPlaying}"

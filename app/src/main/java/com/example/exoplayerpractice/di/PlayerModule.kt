@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface SingletonComponentModule {
+interface PlayerModule {
 
     @Binds
     fun provideMusicPlayer(impl: ExoMusicPlayer): MusicPlayer

@@ -83,7 +83,9 @@ class MusicPlayerViewModel @Inject constructor(
         adapter.submitList(
             playlists.flatMap { playlist ->
                 val playlistModel = listOf(playlistFactory.create(playlist))
-                val tracksModel = playlist.tracks.map(trackFactory::create)
+                val tracksModel = playlist.tracks.map { track ->
+                    trackFactory.create(playlist, track)
+                }
                 playlistModel + tracksModel
             }
         )

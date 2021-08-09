@@ -2,6 +2,7 @@ package com.example.exoplayerpractice.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.exoplayerpractice.data.Playlist
 import com.example.exoplayerpractice.data.Track
 import com.example.exoplayerpractice.player.MusicPlayer
 import com.example.exoplayerpractice.player.PlaybackState
@@ -13,8 +14,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class TrackViewModel @AssistedInject constructor(
+    @Assisted private val playlist: Playlist,
     @Assisted val track: Track,
-    musicPlayer: MusicPlayer
+    private val musicPlayer: MusicPlayer
 ) : ViewModel() {
 
     val isPlaying = musicPlayer.playbackState
@@ -23,9 +25,13 @@ class TrackViewModel @AssistedInject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
+    fun playTrack() {
+        musicPlayer.prepareAndPlay(playlist, track)
+    }
+
     @AssistedFactory
     interface Factory {
 
-        fun create(track: Track): TrackViewModel
+        fun create(playlist: Playlist, track: Track): TrackViewModel
     }
 }

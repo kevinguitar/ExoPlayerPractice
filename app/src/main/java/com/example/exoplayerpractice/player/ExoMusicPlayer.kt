@@ -1,6 +1,7 @@
 package com.example.exoplayerpractice.player
 
 import com.example.exoplayerpractice.data.Playlist
+import com.example.exoplayerpractice.data.Track
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -58,7 +59,7 @@ class ExoMusicPlayer @Inject constructor(
         else -> Unit
     }
 
-    override fun prepareAndPlay(playlist: Playlist) {
+    override fun prepareAndPlay(playlist: Playlist, track: Track?) {
         if (currentPlaylistId != playlist.id) {
             currentPlaylistId = playlist.id
             player.setMediaItems(playlist.tracks.map {
@@ -68,6 +69,10 @@ class ExoMusicPlayer @Inject constructor(
                     .build()
             })
             player.prepare()
+        }
+        if (track != null) {
+            val position = playlist.tracks.indexOf(track)
+            player.seekToDefaultPosition(position)
         }
         player.playWhenReady = true
         player.play()
@@ -121,7 +126,10 @@ class ExoMusicPlayer @Inject constructor(
         durationTimerJob = GlobalScope.launch {
             while (true) {
                 withContext(Dispatchers.Main) {
-                    _playbackProgress.value = PlaybackProgress(currentPosition, duration)
+                    _playbackProgress.value = PlaybackProgress(
+                        current = currentPosition,
+                        duration = duration.coerceAtLeast(0)
+                    )
                 }
                 delay(100)
             }
