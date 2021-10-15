@@ -1,16 +1,13 @@
 package com.example.exoplayerpractice.ui
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.exoplayerpractice.data.Playlist
 import com.example.exoplayerpractice.player.MusicPlayer
 import com.example.exoplayerpractice.player.PlaybackState
+import com.example.exoplayerpractice.utils.mapState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 class PlaylistViewModel @AssistedInject constructor(
     @Assisted val playlist: Playlist,
@@ -18,10 +15,9 @@ class PlaylistViewModel @AssistedInject constructor(
 ) : ViewModel() {
 
     val isPlaying = musicPlayer.playbackState
-        .map { state ->
+        .mapState { state ->
             state !is PlaybackState.Pause && state.playlistId == playlist.id
         }
-        .stateIn(viewModelScope, SharingStarted.Lazily, false)
 
     fun play() {
         musicPlayer.prepareAndPlay(playlist)

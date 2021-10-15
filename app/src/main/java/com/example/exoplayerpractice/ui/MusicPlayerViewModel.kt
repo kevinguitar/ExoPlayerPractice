@@ -9,6 +9,7 @@ import com.example.exoplayerpractice.R
 import com.example.exoplayerpractice.data.playlists
 import com.example.exoplayerpractice.player.MusicPlayer
 import com.example.exoplayerpractice.player.PlaybackState
+import com.example.exoplayerpractice.utils.mapState
 import com.example.exoplayerpractice.utils.toPlaybackTime
 import com.google.android.exoplayer2.Player
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,17 +25,16 @@ class MusicPlayerViewModel @Inject constructor(
 ) : ViewModel() {
 
     val playRes = musicPlayer.playbackState
-        .map { state ->
+        .mapState { state ->
             when (state) {
                 is PlaybackState.Pause -> R.drawable.exo_icon_play
                 is PlaybackState.Playing -> R.drawable.exo_icon_pause
                 is PlaybackState.Loading -> R.drawable.exo_ic_forward
             }
         }
-        .stateIn(viewModelScope, SharingStarted.Lazily, R.drawable.exo_icon_play)
 
     val repeatRes = musicPlayer.repeatMode
-        .map { mode ->
+        .mapState { mode ->
             when (mode) {
                 Player.REPEAT_MODE_OFF -> R.drawable.exo_icon_repeat_off
                 Player.REPEAT_MODE_ALL -> R.drawable.exo_icon_repeat_all
@@ -42,19 +42,15 @@ class MusicPlayerViewModel @Inject constructor(
                 else -> error("not supported mode $mode")
             }
         }
-        .stateIn(viewModelScope, SharingStarted.Lazily, R.drawable.exo_icon_repeat_off)
 
     val playbackTime = musicPlayer.playbackProgress
-        .map { progress -> progress.current.toPlaybackTime }
-        .stateIn(viewModelScope, SharingStarted.Lazily, "0:00")
+        .mapState { progress -> progress.current.toPlaybackTime }
 
     val duration = musicPlayer.playbackProgress
-        .map { progress -> progress.duration.toPlaybackTime }
-        .stateIn(viewModelScope, SharingStarted.Lazily, "0:00")
+        .mapState { progress -> progress.duration.toPlaybackTime }
 
     val maxProgress = musicPlayer.playbackProgress
-        .map { progress -> progress.duration.toInt() }
-        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
+        .mapState { progress -> progress.duration.toInt() }
 
     private val isUserSeeking = MutableStateFlow(false)
 
@@ -62,7 +58,7 @@ class MusicPlayerViewModel @Inject constructor(
         progress.current.toInt().takeUnless { seeking }
     }
         .filterNotNull()
-        .stateIn(viewModelScope, SharingStarted.Lazily, 0)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), 0)
 
     val onPlaybackSeekListener = object : SeekBar.OnSeekBarChangeListener {
 

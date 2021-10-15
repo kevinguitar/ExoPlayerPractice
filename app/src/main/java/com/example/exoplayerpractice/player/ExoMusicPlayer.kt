@@ -87,11 +87,11 @@ class ExoMusicPlayer @Inject constructor(
     }
 
     override fun previous() {
-        player.previous()
+        player.seekToPreviousWindow()
     }
 
     override fun next() {
-        player.next()
+        player.seekToNextWindow()
     }
 
     override fun seekTo(position: Long) {
