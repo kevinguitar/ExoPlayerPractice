@@ -6,12 +6,12 @@ plugins {
 }
 
 android {
-    compileSdk 30
+    compileSdk 31
 
     defaultConfig {
         applicationId "com.example.exoplayerpractice"
         minSdk 23
-        targetSdk 30
+        targetSdk 31
         versionCode 1
         versionName "1.0"
 
@@ -46,6 +46,11 @@ dependencies {
     // ExoPlayer
     implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
     implementation 'com.google.android.exoplayer:exoplayer-core:2.15.1'
+    implementation 'com.google.android.exoplayer:extension-media2:2.15.1'
+
+    // Media2
+    implementation('androidx.media2:media2-session:1.2.0')
+    implementation('androidx.media2:media2-widget:1.2.0')
 
     // Dagger Hilt
     implementation 'com.google.dagger:hilt-android:2.38.1'

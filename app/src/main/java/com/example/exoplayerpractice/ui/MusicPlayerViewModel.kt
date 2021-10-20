@@ -104,7 +104,7 @@ class MusicPlayerViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        super.onCleared()
         musicPlayer.clear()
+        super.onCleared()
     }
 }

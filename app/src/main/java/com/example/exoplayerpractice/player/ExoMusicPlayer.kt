@@ -2,7 +2,7 @@ package com.example.exoplayerpractice.player
 
 import com.example.exoplayerpractice.data.Playlist
 import com.example.exoplayerpractice.data.Track
-import com.google.android.exoplayer2.MediaItem
+import com.example.exoplayerpractice.playback.PlaybackNotificationManager
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.*
@@ -14,7 +14,8 @@ import javax.inject.Singleton
 
 @Singleton
 class ExoMusicPlayer @Inject constructor(
-    private val player: SimpleExoPlayer
+    private val player: SimpleExoPlayer,
+    private val notificationManager: PlaybackNotificationManager
 ) : MusicPlayer {
 
     private var currentPlaylistId: String? = null
@@ -47,27 +48,36 @@ class ExoMusicPlayer @Inject constructor(
                 || Player.EVENT_PLAY_WHEN_READY_CHANGED in events
                 || Player.EVENT_IS_LOADING_CHANGED in events -> {
 
-            val newState = when {
+            _playbackState.value = when {
                 player.isPlaying -> PlaybackState.Playing(currentPlaylistId, currentTrackId)
                 player.isLoading -> PlaybackState.Loading(currentPlaylistId, currentTrackId)
-                else -> PlaybackState.Pause(currentPlaylistId, currentTrackId)
+                else -> {
+                    PlaybackState.Pause(currentPlaylistId, currentTrackId)
+                }
             }
-            _playbackState.value = newState
 
+            notificationManager.showNotification()
             player.setupPlaybackProgressTimer()
         }
+
+        Player.EVENT_REPEAT_MODE_CHANGED in events -> {
+            _repeatMode.value = player.repeatMode
+        }
+
+        Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED in events -> {
+            _shuffleModeEnabled.value = player.shuffleModeEnabled
+        }
+
         else -> Unit
     }
 
     override fun prepareAndPlay(playlist: Playlist, track: Track?) {
         if (currentPlaylistId != playlist.id) {
             currentPlaylistId = playlist.id
-            player.setMediaItems(playlist.tracks.map {
-                MediaItem.Builder()
-                    .setUri(it.url)
-                    .setMediaId(it.id)
-                    .build()
-            })
+            player.setMediaItems(
+                playlist.tracks
+                    .map { it.toMediaItem() }
+            )
             player.prepare()
         }
         if (track != null) {
@@ -104,19 +114,18 @@ class ExoMusicPlayer @Inject constructor(
             Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
             else -> Player.REPEAT_MODE_OFF
         }
-        _repeatMode.value = repeatMode
         player.repeatMode = repeatMode
     }
 
     override fun toggleShuffleMode() {
         val shuffleMode = !_shuffleModeEnabled.value
-        _shuffleModeEnabled.value = shuffleMode
         player.shuffleModeEnabled = shuffleMode
     }
 
     override fun clear() {
         currentPlaylistId = null
         player.clearMediaItems()
+        notificationManager.hideNotification()
     }
 
     private var durationTimerJob: Job? = null
