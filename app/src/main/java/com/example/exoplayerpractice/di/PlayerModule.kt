@@ -1,11 +1,11 @@
 package com.example.exoplayerpractice.di
 
 import android.content.Context
+import androidx.media3.exoplayer.ExoPlayer
 import com.example.exoplayerpractice.player.ExoMusicPlayer
 import com.example.exoplayerpractice.player.MusicPlayer
 import com.example.exoplayerpractice.player.MusicPlayerControl
 import com.example.exoplayerpractice.player.MusicPlayerState
-import com.google.android.exoplayer2.SimpleExoPlayer
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -31,8 +31,8 @@ interface PlayerModule {
 
         @Provides
         @Singleton
-        fun provideSimpleExoPlayer(@ApplicationContext context: Context): SimpleExoPlayer {
-            return SimpleExoPlayer.Builder(context).build()
+        fun provideExoPlayer(@ApplicationContext context: Context): ExoPlayer {
+            return ExoPlayer.Builder(context).build()
         }
     }
 }

@@ -1,10 +1,11 @@
 package com.example.exoplayerpractice.player
 
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import com.example.exoplayerpractice.data.Playlist
 import com.example.exoplayerpractice.data.Track
 import com.example.exoplayerpractice.playback.PlaybackNotificationManager
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ExoMusicPlayer @Inject constructor(
-    private val player: SimpleExoPlayer,
+    private val player: ExoPlayer,
     private val notificationManager: PlaybackNotificationManager
 ) : MusicPlayer {
 
@@ -35,40 +36,46 @@ class ExoMusicPlayer @Inject constructor(
     private val _shuffleModeEnabled = MutableStateFlow(false)
     override val shuffleModeEnabled: StateFlow<Boolean> = _shuffleModeEnabled.asStateFlow()
 
-    init {
-        player.addListener(object : Player.Listener {
-            override fun onEvents(player: Player, events: Player.Events) {
-                this@ExoMusicPlayer.onEvents(player, events)
+    private val globalListener = object : Player.Listener {
+
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            when (playbackState) {
+                Player.STATE_BUFFERING -> _playbackState.value = loadingState
+                Player.STATE_READY -> updatePlayerState()
+                Player.STATE_IDLE, Player.STATE_ENDED -> Unit
             }
-        })
+        }
+
+        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+            updatePlayerState()
+        }
+
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            updatePlayerState()
+        }
+
+        private fun updatePlayerState() {
+            _playbackState.value = if (player.playWhenReady) {
+                notificationManager.showNotification()
+                player.setupPlaybackProgressTimer()
+                playingState
+            } else {
+                durationTimerJob?.cancel()
+                pauseState
+            }
+        }
+
+        override fun onRepeatModeChanged(repeatMode: Int) {
+            _repeatMode.value = repeatMode
+        }
+
+        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+            _shuffleModeEnabled.value = shuffleModeEnabled
+        }
     }
 
-    private fun onEvents(player: Player, events: Player.Events) = when {
-        Player.EVENT_PLAYBACK_STATE_CHANGED in events
-                || Player.EVENT_PLAY_WHEN_READY_CHANGED in events
-                || Player.EVENT_IS_LOADING_CHANGED in events -> {
-
-            _playbackState.value = when {
-                player.isPlaying -> PlaybackState.Playing(currentPlaylistId, currentTrackId)
-                player.isLoading -> PlaybackState.Loading(currentPlaylistId, currentTrackId)
-                else -> {
-                    PlaybackState.Pause(currentPlaylistId, currentTrackId)
-                }
-            }
-
-            notificationManager.showNotification()
-            player.setupPlaybackProgressTimer()
-        }
-
-        Player.EVENT_REPEAT_MODE_CHANGED in events -> {
-            _repeatMode.value = player.repeatMode
-        }
-
-        Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED in events -> {
-            _shuffleModeEnabled.value = player.shuffleModeEnabled
-        }
-
-        else -> Unit
+    init {
+        player.addListener(globalListener)
     }
 
     override fun prepareAndPlay(playlist: Playlist, track: Track?) {
@@ -97,15 +104,16 @@ class ExoMusicPlayer @Inject constructor(
     }
 
     override fun previous() {
-        player.seekToPreviousWindow()
+        player.seekToPreviousMediaItem()
     }
 
     override fun next() {
-        player.seekToNextWindow()
+        player.seekToNextMediaItem()
     }
 
     override fun seekTo(position: Long) {
         player.seekTo(position)
+
     }
 
     override fun toggleRepeatMode() {
@@ -128,6 +136,18 @@ class ExoMusicPlayer @Inject constructor(
         notificationManager.hideNotification()
     }
 
+
+    /**
+     *  Playback states creation
+     */
+    private val loadingState get() = PlaybackState.Loading(currentPlaylistId, currentTrackId)
+    private val pauseState get() = PlaybackState.Pause(currentPlaylistId, currentTrackId)
+    private val playingState get() = PlaybackState.Playing(currentPlaylistId, currentTrackId)
+
+
+    /**
+     *  Playback timer
+     */
     private var durationTimerJob: Job? = null
 
     private fun Player.setupPlaybackProgressTimer() {

@@ -1,28 +1,28 @@
 package com.example.exoplayerpractice.playback
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
-import androidx.media2.session.MediaSession
-import androidx.media2.session.SessionCommand
-import androidx.media2.session.SessionCommandGroup
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.session.MediaSession
+import androidx.media3.session.PlayerNotificationManager
 import com.example.exoplayerpractice.R
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.ext.media2.SessionPlayerConnector
-import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val PLAYBACK_NOTIFICATION_ID = 0xb339
 
+@SuppressLint("UnsafeOptInUsageError")
 @Singleton
 class PlaybackNotificationManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val player: SimpleExoPlayer
+    private val player: ExoPlayer,
+    mediaMetadataAdapter: MediaMetadataAdapter,
 ) {
 
     private val notificationChannelId: String
@@ -33,28 +33,14 @@ class PlaybackNotificationManager @Inject constructor(
         PLAYBACK_NOTIFICATION_ID,
         notificationChannelId
     )
+        .setMediaDescriptionAdapter(mediaMetadataAdapter)
         .setSmallIconResourceId(R.drawable.exo_icon_vr)
         // Disable rewind and fast forward actions
         .setRewindActionIconResourceId(0)
         .setFastForwardActionIconResourceId(0)
         .build()
 
-    private val sessionPlayer = SessionPlayerConnector(player)
-
-    private val mediaSessionCallback = object : MediaSession.SessionCallback() {
-        override fun onConnect(
-            session: MediaSession,
-            controller: MediaSession.ControllerInfo
-        ) = SessionCommandGroup.Builder()
-            .addCommand(SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PLAY))
-            .addCommand(SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PAUSE))
-            .addCommand(SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO))
-            .build()
-    }
-
-    private val mediaSession = MediaSession.Builder(context, sessionPlayer)
-        .setSessionCallback(ContextCompat.getMainExecutor(context), mediaSessionCallback)
-        .build()
+    private val mediaSession = MediaSession.Builder(context, player).build()
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -69,13 +55,13 @@ class PlaybackNotificationManager @Inject constructor(
     }
 
     fun showNotification() {
-        notificationManager.setMediaSessionToken(mediaSession.sessionCompatToken)
+        notificationManager.setMediaSessionToken(mediaSession.sessionCompatToken as MediaSessionCompat.Token)
         notificationManager.setPlayer(player)
     }
 
     fun hideNotification() {
         notificationManager.setPlayer(null)
-        mediaSession.close()
+        mediaSession.release()
     }
 
 }

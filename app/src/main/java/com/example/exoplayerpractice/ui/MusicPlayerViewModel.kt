@@ -5,13 +5,13 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.Player
 import com.example.exoplayerpractice.R
 import com.example.exoplayerpractice.data.playlists
 import com.example.exoplayerpractice.player.MusicPlayer
 import com.example.exoplayerpractice.player.PlaybackState
 import com.example.exoplayerpractice.utils.mapState
 import com.example.exoplayerpractice.utils.toPlaybackTime
-import com.google.android.exoplayer2.Player
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject

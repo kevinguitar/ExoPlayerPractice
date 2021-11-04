@@ -8,5 +8,6 @@ data class Playlist(
 data class Track(
     val id: String,
     val title: String,
-    val url: String
+    val url: String,
+    val artworkUrl: String
 )
